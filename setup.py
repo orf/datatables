@@ -8,5 +8,5 @@ setup(
     license='',
     author='Tom',
     author_email='',
-    description='Integrates SQLAlchemy with datatables'
+    description='Integrates SQLAlchemy with datatables', requires=['sqlalchemy']
 )
