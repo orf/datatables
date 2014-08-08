@@ -25,7 +25,24 @@ class DataTablesTest(unittest.TestCase):
         self.session.add_all(users)
         self.session.commit()
 
+    def make_params(self, columns, order=None, search=None, start=0, length=10):
+        x = {
+            "draw": "1",
+            "start": str(start),
+            "length": str(length)
+        }
+        for i, item in enumerate(order):
+            for key, value in order[item].items():
+                x["order[{}][{}]".format(i, key)] = str(value)
+
+        if search:
+            for key, value in search.items():
+                x["search[{}]".format(key)] = str(value)
+
     def test_basic_function(self):
         self.make_data(10)
 
-        self.assertEqual(self.session.query(User).count(), 1)
+        table = DataTable()
+
+
+        self.assertEqual(self.session.query(User).count(), 10)

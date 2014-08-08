@@ -18,9 +18,8 @@ class DataTablesError(ValueError):
 
 
 class DataTable(object):
-    def __init__(self, request, model, query, columns):
-        self.request = request
-        self.params = request.params
+    def __init__(self, params, model, query, columns):
+        self.params = params
         self.model = model
         self.query = query
         self.data = {}

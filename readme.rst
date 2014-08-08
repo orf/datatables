@@ -50,7 +50,7 @@ Quickstart
     @view_config(route_name="data", request_method="GET", renderer="json")
     def scopes_data(request):
 
-        table = DataTable(request, User, User.query, [
+        table = DataTable(request.params, User, User.query, [
             "id",
             ("name", "full_name")
             ("address", "address.description"),
