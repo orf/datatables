@@ -59,7 +59,7 @@ Quickstart
 
         return table.json()
 
-**someview.html**
+**template.jinja2**
 
 .. code-block:: html
 
@@ -81,7 +81,12 @@ Quickstart
             processing: true,
             ajax: "{{ request.route_url("data") }}",
             columns: [
-                { data: "id" },
+                {
+                    data: "id",
+                    "render": function(data, type, row){
+                        return $("<div>").append($("<a/>").attr("href", row.DT_RowData.link).text(data)).html();
+                    }
+                },
                 { data: "name" },
                 { data: "address" }
             ]
