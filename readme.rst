@@ -26,7 +26,7 @@ Quickstart
     class User(Base):
         __tablename__ = 'users'
 
-        id          = Column(Integer, primary_key=True)::
+        id          = Column(Integer, primary_key=True)
         first_name  = Column(Text)
         last_name   = Column(Text)
         created_at  = Column(DateTime, default=datetime.datetime.utcnow)
