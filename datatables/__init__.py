@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple
 from sqlalchemy.sql.expression import asc, desc
-from sqlalchemy.orm import joinedload
+from sqlalchemy.orm import joinedload, RelationshipProperty
 import re
 import inspect
 
@@ -120,8 +120,13 @@ class DataTable(object):
             column_name = columns[column]["data"]
             column = self.columns_dict[column_name]
 
-            #model_column = getattr(self.model, column_name)
-            query = query.order_by(asc(column.model_name) if direction == "asc" else desc(column.model_name))
+            model_column = getattr(self.model, column.model_name)
+
+            if isinstance(model_column.property, RelationshipProperty):
+                # ToDo: Order by a relationship attribute
+                raise NotImplementedError("Cant order by relationship properties")
+
+            query = query.order_by(asc(model_column) if direction == "asc" else desc(model_column))
             #model_column = self._column_from_name()
             pass
 
@@ -133,7 +138,7 @@ class DataTable(object):
             "recordsTotal": total_records,
             "recordsFiltered": filtered_records,
             "data": [
-                self.output_instance(instance) for instance in self.query.all()
+                self.output_instance(instance) for instance in query.all()
             ]
         }
 

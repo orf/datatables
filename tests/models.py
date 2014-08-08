@@ -1,6 +1,6 @@
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey, create_engine
-from sqlalchemy.orm import relationship, sessionmaker
+from sqlalchemy import Column, Integer, Text, DateTime, ForeignKey
+from sqlalchemy.orm import relationship
 import datetime
 Base = declarative_base()
 
@@ -21,8 +21,3 @@ class Address(Base):
     id = Column(Integer, primary_key=True)
     description = Column(Text, unique=True)
     user_id = Column(Integer, ForeignKey('users.id'))
-
-
-engine=create_engine('sqlite://', echo=True)
-Base.metadata.create_all(engine)
-Session = sessionmaker(bind=engine)

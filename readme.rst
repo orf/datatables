@@ -27,14 +27,10 @@ Quickstart
         __tablename__ = 'users'
 
         id          = Column(Integer, primary_key=True)
-        first_name  = Column(Text)
-        last_name   = Column(Text)
+        full_name   = Column(Text)
         created_at  = Column(DateTime, default=datetime.datetime.utcnow)
 
         address     = relationship("Address", uselist=False, backref="user")
-
-        def full_name(self):
-            return "{} {}".format(self.first_name, self.last_name)
 
     class Address(Base):
         __tablename__ = 'addresses'
