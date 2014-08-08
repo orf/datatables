@@ -52,7 +52,7 @@ Quickstart
 
         table = DataTable(request.params, User, User.query, [
             "id",
-            ("name", "full_name")
+            ("name", "full_name"),
             ("address", "address.description"),
         ])
         table.add_data(link=lambda o: request.route_url("view_user", id=o.id))

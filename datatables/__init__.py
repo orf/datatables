@@ -24,6 +24,7 @@ class DataTable(object):
         self.query = query
         self.data = {}
         self.columns = []
+        self.columns_dict = {}
 
         for col in columns:
             name, model_name, filter_func = None, None, None
@@ -47,7 +48,9 @@ class DataTable(object):
                 # It's just a string
                 name, model_name = col, col
 
-            self.columns.append(DataColumn(name=name, model_name=model_name, filter=filter_func))
+            d = DataColumn(name=name, model_name=model_name, filter=filter_func)
+            self.columns.append(d)
+            self.columns_dict[d.name] = d
 
         for column in (col for col in self.columns if "." in col.model_name):
             self.query = self.query.options(joinedload(column.model_name.split(".")[0]))
@@ -115,9 +118,10 @@ class DataTable(object):
         for order in ordering.values():
             direction, column = order["dir"], order["column"]
             column_name = columns[column]["data"]
+            column = self.columns_dict[column_name]
 
             #model_column = getattr(self.model, column_name)
-            query = query.order_by(asc(column_name) if direction == "asc" else desc(column_name))
+            query = query.order_by(asc(column.model_name) if direction == "asc" else desc(column.model_name))
             #model_column = self._column_from_name()
             pass
 
@@ -153,4 +157,4 @@ class DataTable(object):
 
         r = getattr(instance, attr)
 
-        return r() if inspect.isfunction(r) else r
+        return r() if (inspect.isfunction(r) or inspect.ismethod(r)) else r
