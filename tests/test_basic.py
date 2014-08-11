@@ -168,6 +168,7 @@ class TestDataTables:
 
         x = table.json()
 
+
         assert x["data"][0]["name"] == desc_user.full_name
 
         req = self.make_params(order=[{"column": 1, "dir": "asc"}], length=100)

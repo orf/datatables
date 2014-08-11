@@ -39,7 +39,7 @@ class DataTable(object):
                 elif len(col) == 2:
                     # Work out the second argument. If it is a function then it's type 2, else it is type 1.
                     if callable(col[1]):
-                        name, filter = col
+                        name, filter_func = col
                         model_name = name
                     else:
                         name, model_name = col
