@@ -31,12 +31,13 @@ class DataTable(object):
 
             if isinstance(col, DataColumn):
                 self.columns.append(col)
+                continue
             elif isinstance(col, tuple):
                 # col is either 1. (name, model_name), 2. (name, filter) or 3. (name, model_name, filter)
                 if len(col) == 3:
                     name, model_name, filter_func = col
                 elif len(col) == 2:
-                    # Work out the second argument. If it is a function then it's type 2, else it is type 3.
+                    # Work out the second argument. If it is a function then it's type 2, else it is type 1.
                     if callable(col[1]):
                         name, filter = col
                         model_name = name
@@ -54,10 +55,6 @@ class DataTable(object):
 
         for column in (col for col in self.columns if "." in col.model_name):
             self.query = self.query.join(column.model_name.split(".")[0])
-
-    def _property_from_name(self, name):
-        mapper = self.model.__mapper__
-        return mapper.get_property(name)
 
     def query_into_dict(self, key_start):
         returner = defaultdict(dict)
@@ -104,6 +101,14 @@ class DataTable(object):
         self.data.update(**kwargs)
 
     def json(self):
+        try:
+            return self._json()
+        except DataTablesError as e:
+            return {
+                "error": str(e)
+            }
+
+    def _json(self):
         draw = self.get_integer_param("draw")
         start = self.get_integer_param("start")
         length = self.get_integer_param("length")
@@ -159,6 +164,9 @@ class DataTable(object):
             subkey, attr = attr.split(".", 1)
             instance = getattr(instance, subkey)
 
-        r = getattr(instance, attr)
+        if key.filter is not None:
+            r = key.filter(instance)
+        else:
+            r = getattr(instance, attr)
 
         return r() if (inspect.isfunction(r) or inspect.ismethod(r)) else r

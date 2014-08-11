@@ -1,7 +1,7 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from .models import User, Address, Base
-from datatables import DataTable
+from datatables import DataTable, DataColumn
 import faker
 
 
@@ -77,6 +77,11 @@ class TestDataTables:
 
     def test_relation_ordering(self):
         self.make_data(10)
+        u1, addr_asc = self.make_user("SomeUser", "0000000 hell road")
+        u2, addr_desc = self.make_user("SomeOtherUser", "99999999999 hell road")
+        self.session.add_all((u1, u2))
+        self.session.commit()
+
         req = self.make_params(order=[{"column": 2, "dir": "desc"}])
         table = DataTable(req,
                           User,
@@ -86,7 +91,63 @@ class TestDataTables:
                               ("name", "full_name"),
                               ("address", "address.description")
                           ])
-        x = table.json()
+        result = table.json()
+        assert result["data"][0]["address"] == addr_desc.description
+
+        req = self.make_params(order=[{"column": 2, "dir": "asc"}])
+        table = DataTable(req,
+                          User,
+                          self.session.query(User),
+                          [
+                              "id",
+                              ("name", "full_name"),
+                              ("address", "address.description")
+                          ])
+        result = table.json()
+        assert result["data"][0]["address"] == addr_asc.description
+
+    def test_filter(self):
+        self.make_data(10)
+        req = self.make_params()
+
+        table = DataTable(req,
+                          User,
+                          self.session.query(User),
+                          [
+                              "id",
+                              ("name", "full_name", lambda i: "User: " + i.full_name)
+                          ])
+        result = table.json()
+        assert all(r["name"].startswith("User: ") for r in result["data"])
+
+    def test_extra_data(self):
+        self.make_data(10)
+
+        req = self.make_params()
+        table = DataTable(req,
+                          User,
+                          self.session.query(User),
+                          [
+                              "id"
+                          ])
+        table.add_data(id_multiplied=lambda i: i.id * 10)
+
+        result = table.json()
+        assert all(r["id"] * 10 == r["DT_RowData"]["id_multiplied"] for r in result["data"])
+
+    def test_column_inputs(self):
+        self.make_data(10)
+        req = self.make_params()
+
+        table = DataTable(req,
+                          User,
+                          self.session.query(User),
+                          [
+                              DataColumn(name="id", model_name="id", filter=None),
+                              ("full_name", lambda i: str(i)),
+                              "address"
+                          ])
+        table.json()
 
     def test_ordering(self):
         self.make_data(10)
@@ -123,3 +184,22 @@ class TestDataTables:
         x = table.json()
 
         assert x["data"][-1]["name"] == desc_user.full_name
+
+    def test_error(self):
+        req = self.make_params()
+        req["start"] = "invalid"
+
+        table = DataTable(req,
+                          User,
+                          self.session.query(User),
+                          ["id"])
+        assert "error" in table.json()
+
+        req = self.make_params()
+        del req["start"]
+
+        table = DataTable(req,
+                          User,
+                          self.session.query(User),
+                          ["id"])
+        assert "error" in table.json()
