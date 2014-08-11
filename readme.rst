@@ -49,7 +49,8 @@ Example
         full_name   = Column(Text)
         created_at  = Column(DateTime, default=datetime.datetime.utcnow)
 
-        address     = relationship("Address", uselist=False, backref="user")
+        # Use lazy=joined to prevent O(N) queries
+        address     = relationship("Address", uselist=False, backref="user", lazy="joined")
 
     class Address(Base):
         __tablename__ = 'addresses'

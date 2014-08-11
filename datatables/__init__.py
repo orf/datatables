@@ -1,6 +1,6 @@
 from collections import defaultdict, namedtuple
-from sqlalchemy.sql.expression import asc, desc
-from sqlalchemy.orm import joinedload, RelationshipProperty
+from sqlalchemy.sql.expression import cast, or_
+from sqlalchemy import String
 import re
 import inspect
 
@@ -60,21 +60,23 @@ class DataTable(object):
         returner = defaultdict(dict)
 
         # Matches columns[number][key] with an [optional_value] on the end
-        pattern = "{}\[(\d+)\]\[(\w+)\](?:\[(\w+)\])?".format(key_start)
+        pattern = "{}(?:\[(\d+)\])?\[(\w+)\](?:\[(\w+)\])?".format(key_start)
 
         columns = (param for param in self.params if re.match(pattern, param))
 
         for param in columns:
 
             column_id, key, optional_subkey = re.search(pattern, param).groups()
-            column_id = int(column_id)
 
-            if optional_subkey is None:
-                returner[column_id][key] = self.coerce_value(key, self.params[param])
+            if column_id is None:
+                returner[key] = self.coerce_value(key, self.params[param])
+            elif optional_subkey is None:
+                returner[int(column_id)][key] = self.coerce_value(key, self.params[param])
             else:
                 # Oh baby a triple
-                returner[column_id].setdefault(key, {})[optional_subkey] = self.coerce_value("{}.{}".format(key, optional_subkey),
-                                                                                             self.params[param])
+                subdict = returner[int(column_id)].setdefault(key, {})
+                subdict[optional_subkey] = self.coerce_value("{}.{}".format(key, optional_subkey),
+                                                             self.params[param])
 
         return dict(returner)
 
@@ -108,6 +110,16 @@ class DataTable(object):
                 "error": str(e)
             }
 
+    def get_column(self, column):
+        if "." in column.model_name:
+            column_path = column.model_name.split(".")
+            relationship = getattr(self.model, column_path[0])
+            model_column = getattr(relationship.property.mapper.entity, column_path[1])
+        else:
+            model_column = getattr(self.model, column.model_name)
+
+        return model_column
+
     def _json(self):
         draw = self.get_integer_param("draw")
         start = self.get_integer_param("start")
@@ -120,17 +132,36 @@ class DataTable(object):
         query = self.query
         total_records = query.count()
 
+        if search.get("value", None):
+            q = search["value"]
+            # Search all the things
+            conditions = []
+
+            for column, column_info in columns.items():
+                if column_info["searchable"]:
+                    # Issue a like query on this column
+                    column = self.columns_dict[column_info["data"]]
+                    model_column = self.get_column(column)
+                    conditions.append(cast(model_column, String).ilike("%{}%".format(q)))
+
+            query = query.filter(or_(*conditions))
+
         for order in ordering.values():
             direction, column = order["dir"], order["column"]
+
+            if column not in columns:
+                raise DataTablesError("Cannot order {}: column not found".format(column))
+
+            if not columns[column]["orderable"]:
+                continue
+
             column_name = columns[column]["data"]
             column = self.columns_dict[column_name]
 
-            if "." in column.model_name:
-                column_path = column.model_name.split(".")
-                relationship = getattr(self.model, column_path[0])
-                model_column = getattr(relationship.property.mapper.entity, column_path[1])
-            else:
-                model_column = getattr(self.model, column.model_name)
+            model_column = self.get_column(column)
+
+            if isinstance(model_column, property):
+                raise DataTablesError("Cannot order by column {} as it is a property".format(column.model_name))
 
             query = query.order_by(model_column.desc() if direction == "desc" else model_column.asc())
 
