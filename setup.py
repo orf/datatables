@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='datatables',
-    version='0.1',
+    version='0.2',
     packages=['datatables'],
     url='',
     license='',

@@ -53,7 +53,7 @@ class DataTable(object):
             self.columns_dict[d.name] = d
 
         for column in (col for col in self.columns if "." in col.model_name):
-            self.query = self.query.options(joinedload(column.model_name.split(".")[0]))
+            self.query = self.query.join(column.model_name.split(".")[0])
 
     def _property_from_name(self, name):
         mapper = self.model.__mapper__
@@ -120,15 +120,14 @@ class DataTable(object):
             column_name = columns[column]["data"]
             column = self.columns_dict[column_name]
 
-            model_column = getattr(self.model, column.model_name)
+            if "." in column.model_name:
+                column_path = column.model_name.split(".")
+                relationship = getattr(self.model, column_path[0])
+                model_column = getattr(relationship.property.mapper.entity, column_path[1])
+            else:
+                model_column = getattr(self.model, column.model_name)
 
-            if isinstance(model_column.property, RelationshipProperty):
-                # ToDo: Order by a relationship attribute
-                raise NotImplementedError("Cant order by relationship properties")
-
-            query = query.order_by(asc(model_column) if direction == "asc" else desc(model_column))
-            #model_column = self._column_from_name()
-            pass
+            query = query.order_by(model_column.desc() if direction == "desc" else model_column.asc())
 
         query = query.slice(start, length)
         filtered_records = query.count()

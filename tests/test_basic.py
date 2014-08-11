@@ -75,6 +75,19 @@ class TestDataTables:
 
         assert len(x["data"]) == 10
 
+    def test_relation_ordering(self):
+        self.make_data(10)
+        req = self.make_params(order=[{"column": 2, "dir": "desc"}])
+        table = DataTable(req,
+                          User,
+                          self.session.query(User),
+                          [
+                              "id",
+                              ("name", "full_name"),
+                              ("address", "address.description")
+                          ])
+        x = table.json()
+
     def test_ordering(self):
         self.make_data(10)
         desc_user, _ = self.make_user("z" * 20, "z" * 20)
