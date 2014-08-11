@@ -5,6 +5,9 @@ python:
   - "3.3"
   - "3.4"
 # command to install dependencies
-install: "pip install -r travis_requirements.txt && python setup.py install"
+install:
+  - "pip install -r travis_requirements.txt"
+  - "python setup.py install"
 # command to run tests
-script: py.test .
+script: coverage run -m pytest
+after_success: coveralls

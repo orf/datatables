@@ -12,7 +12,7 @@ datatables |PyPi Version| |TravisCI|
 Installation
 ------------
 
-The package is available on `PyPI <https://pypi.python.org/pypi/datatables>`_
+The package is available on `PyPI <https://pypi.python.org/pypi/datatables>`_ and is tested on Python 2.7 to 3.4
 
 .. code-block:: bash
 
@@ -73,12 +73,12 @@ Example
 
 .. code-block:: html
 
-    <table class="table" id="simple-example">
+    <table class="table" id="clients_list">
         <thead>
             <tr>
                 <th>Id</th>
                 <th>User name</th>
-                <th>Address description</th>
+                <th>Address</th>
             </tr>
         </thead>
         <tbody>
