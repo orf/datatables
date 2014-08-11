@@ -5,7 +5,7 @@ with open("LICENSE") as license:
 
 setup(
     name='datatables',
-    version='0.2',
+    version='0.3',
     packages=['datatables'],
     url='https://github.com/orf/datatables/',
     license='MIT',
