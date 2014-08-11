@@ -1,12 +1,17 @@
-====================================
-datatables |PyPi Version| |TravisCI|
-====================================
+===============================================
+datatables |PyPi Version| |TravisCI| |Coverage|
+===============================================
 
 .. |PyPi Version| image:: http://img.shields.io/pypi/v/datatables.svg?style=flat
     :target: https://pypi.python.org/pypi/datatables
 
 .. |TravisCI| image:: https://api.travis-ci.org/orf/datatables.svg
     :target: https://travis-ci.org/orf/datatables
+
+.. |Coverage| image:: https://coveralls.io/repos/orf/datatables/badge.png?branch=master
+  :target: https://coveralls.io/r/orf/datatables?branch=master
+
+
 
 
 Installation
