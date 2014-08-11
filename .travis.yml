@@ -9,5 +9,5 @@ install:
   - "pip install -r travis_requirements.txt"
   - "python setup.py install"
 # command to run tests
-script: coverage run --include="datatables/*" -m pytest -v
+script: coverage run --source=datatables -m pytest -v
 after_success: coveralls
