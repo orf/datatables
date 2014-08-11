@@ -44,7 +44,7 @@ Quickstart
 .. code-block:: python
 
     @view_config(route_name="data", request_method="GET", renderer="json")
-    def scopes_data(request):
+    def users_data(request):
 
         table = DataTable(request.params, User, User.query, [
             "id",
