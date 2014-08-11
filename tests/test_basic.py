@@ -203,3 +203,25 @@ class TestDataTables:
                           self.session.query(User),
                           ["id"])
         assert "error" in table.json()
+
+    def test_search(self):
+        user, addr = self.make_user("Silly Sally", "Silly Sally Road")
+        user2, addr2 = self.make_user("Silly Sall", "Silly Sally Roa")
+        self.session.add_all((user, user2))
+        self.session.commit()
+
+        req = self.make_params(search={
+            "value": "Silly Sally"
+        })
+
+        table = DataTable(req, User, self.session.query(User), [("name", "full_name")])
+        results = table.json()
+        assert len(results["data"]) == 1
+
+        req = self.make_params(search={
+            "value": "Silly Sall"
+        })
+
+        table = DataTable(req, User, self.session.query(User), [("name", "full_name")])
+        results = table.json()
+        assert len(results["data"]) == 2

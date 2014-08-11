@@ -140,6 +140,8 @@ class DataTable(object):
             for column, column_info in columns.items():
                 if column_info["searchable"]:
                     # Issue a like query on this column
+                    if column_info["data"] not in self.columns_dict:
+                        continue
                     column = self.columns_dict[column_info["data"]]
                     model_column = self.get_column(column)
                     conditions.append(cast(model_column, String).ilike("%{}%".format(q)))
