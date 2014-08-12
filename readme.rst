@@ -66,7 +66,7 @@ Example
     @view_config(route_name="data", request_method="GET", renderer="json")
     def users_data(request):
         # User.query = session.query(User)
-        table = DataTable(request.params, User, User.query, [
+        table = DataTable(request.GET, User, User.query, [
             "id",
             ("name", "full_name", lambda i: "User: {}".format(i.full_name)),
             ("address", "address.description"),
