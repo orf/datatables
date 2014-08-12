@@ -1,8 +1,9 @@
 from collections import defaultdict, namedtuple
-from sqlalchemy.sql.expression import cast, or_
-from sqlalchemy import String
 import re
 import inspect
+
+from sqlalchemy.sql.expression import cast, or_
+from sqlalchemy import String
 
 
 BOOLEAN_FIELDS = (

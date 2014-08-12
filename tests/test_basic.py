@@ -1,8 +1,9 @@
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+import faker
+
 from .models import User, Address, Base
 from datatables import DataTable, DataColumn
-import faker
 
 
 class TestDataTables:
