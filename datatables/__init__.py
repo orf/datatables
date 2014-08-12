@@ -202,4 +202,4 @@ class DataTable(object):
         else:
             r = getattr(instance, attr)
 
-        return r() if (inspect.isfunction(r) or inspect.ismethod(r)) else r
+        return r() if inspect.isroutine(r) else r
