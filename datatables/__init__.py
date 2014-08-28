@@ -5,6 +5,8 @@ import inspect
 from sqlalchemy.sql.expression import cast, or_
 from sqlalchemy import String
 
+from sqlalchemy_utils.functions import escape_like
+
 
 BOOLEAN_FIELDS = (
     "search.regex", "searchable", "orderable", "regex"
@@ -145,7 +147,7 @@ class DataTable(object):
                         continue
                     column = self.columns_dict[column_info["data"]]
                     model_column = self.get_column(column)
-                    conditions.append(cast(model_column, String).ilike("%{}%".format(q)))
+                    conditions.append(cast(model_column, String).ilike("%{}%".format(escape_like(q))))
 
             query = query.filter(or_(*conditions))
 

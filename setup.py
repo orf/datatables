@@ -1,20 +1,18 @@
 from setuptools import setup
 
-with open("LICENSE") as license:
-    pass
 
 setup(
     name='datatables',
-    version='0.4.2',
+    version='0.4.3',
     packages=['datatables'],
     url='https://github.com/orf/datatables/',
     license='MIT',
     long_description=open("readme.rst").read(),
-    keywords='sqlalcemy datatables jquery pyramid flask',
+    keywords='sqlalchemy datatables jquery pyramid flask',
     author='Tom',
     author_email='tom@tomforb.es',
     description='Integrates SQLAlchemy with DataTables (framework agnostic)',
-    requires=['sqlalchemy'],
+    requires=['sqlalchemy', 'sqlalchemy_utils'],
     zip_safe=False,
     include_package_data=True,
     classifiers=[
