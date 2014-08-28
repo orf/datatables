@@ -1,4 +1,5 @@
 sqlalchemy
+sqlalchemy_utils
 fake-factory
 pytest
 coveralls
