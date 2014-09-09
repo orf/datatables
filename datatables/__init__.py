@@ -136,7 +136,7 @@ class DataTable(object):
         total_records = query.count()
 
         if search.get("value", None):
-            q = search["value"]
+            q = str(search["value"])
             # Search all the things
             conditions = []
 
@@ -170,8 +170,8 @@ class DataTable(object):
 
             query = query.order_by(model_column.desc() if direction == "desc" else model_column.asc())
 
-        query = query.slice(start, length)
         filtered_records = query.count()
+        query = query.slice(start, length)
 
         return {
             "draw": draw,
