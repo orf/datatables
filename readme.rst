@@ -72,6 +72,7 @@ Example
             ("address", "address.description"),
         ])
         table.add_data(link=lambda o: request.route_url("view_user", id=o.id))
+        table.searchable(lambda queryset, user_input: perform_some_search(queryset, user_input))
 
         return table.json()
 
