@@ -28,6 +28,7 @@ class DataTable(object):
         self.data = {}
         self.columns = []
         self.columns_dict = {}
+        self.search_func = lambda qs, s: qs
 
         for col in columns:
             name, model_name, filter_func = None, None, None
@@ -94,7 +95,7 @@ class DataTable(object):
         return value
 
     def get_integer_param(self, param_name):
-        if not param_name in self.params:
+        if param_name not in self.params:
             raise DataTablesError("Parameter {} is missing".format(param_name))
 
         try:
@@ -123,6 +124,9 @@ class DataTable(object):
 
         return model_column
 
+    def searchable(self, func):
+        self.search_func = func
+
     def _json(self):
         draw = self.get_integer_param("draw")
         start = self.get_integer_param("start")
@@ -135,21 +139,8 @@ class DataTable(object):
         query = self.query
         total_records = query.count()
 
-        if search.get("value", None):
-            q = str(search["value"])
-            # Search all the things
-            conditions = []
-
-            for column, column_info in columns.items():
-                if column_info["searchable"]:
-                    # Issue a like query on this column
-                    if column_info["data"] not in self.columns_dict:
-                        continue
-                    column = self.columns_dict[column_info["data"]]
-                    model_column = self.get_column(column)
-                    conditions.append(cast(model_column, String).ilike("%{}%".format(escape_like(q))))
-
-            query = query.filter(or_(*conditions))
+        if callable(self.search_func) and search.get("value", None):
+            query = self.search_func(query, search["value"])
 
         for order in ordering.values():
             direction, column = order["dir"], order["column"]
