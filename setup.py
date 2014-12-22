@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='datatables',
-    version='0.4.4',
+    version='0.4.6',
     packages=['datatables'],
     url='https://github.com/orf/datatables/',
     license='MIT',
@@ -12,7 +12,6 @@ setup(
     author='Tom',
     author_email='tom@tomforb.es',
     description='Integrates SQLAlchemy with DataTables (framework agnostic)',
-    requires=['sqlalchemy', 'sqlalchemy_utils'],
     zip_safe=False,
     include_package_data=True,
     classifiers=[

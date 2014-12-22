@@ -2,11 +2,6 @@ from collections import defaultdict, namedtuple
 import re
 import inspect
 
-from sqlalchemy.sql.expression import cast, or_
-from sqlalchemy import String
-
-from sqlalchemy_utils.functions import escape_like
-
 
 BOOLEAN_FIELDS = (
     "search.regex", "searchable", "orderable", "regex"
