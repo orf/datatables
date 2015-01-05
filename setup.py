@@ -3,7 +3,7 @@ from setuptools import setup
 
 setup(
     name='datatables',
-    version='0.4.6',
+    version='0.4.7',
     packages=['datatables'],
     url='https://github.com/orf/datatables/',
     license='MIT',

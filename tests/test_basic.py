@@ -169,7 +169,6 @@ class TestDataTables:
 
         x = table.json()
 
-
         assert x["data"][0]["name"] == desc_user.full_name
 
         req = self.make_params(order=[{"column": 1, "dir": "asc"}], length=100)
@@ -217,6 +216,7 @@ class TestDataTables:
         })
 
         table = DataTable(req, User, self.session.query(User), [("name", "full_name")])
+        table.searchable(lambda qs, sq: qs.filter(User.full_name.startswith(sq)))
         results = table.json()
         assert len(results["data"]) == 1
 
