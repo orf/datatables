@@ -78,8 +78,8 @@ class TestDataTables:
 
     def test_relation_ordering(self):
         self.make_data(10)
-        u1, addr_asc = self.make_user("SomeUser", "0000000 hell road")
-        u2, addr_desc = self.make_user("SomeOtherUser", "99999999999 hell road")
+        u1, addr_asc = self.make_user("SomeUser", "0" * 5)
+        u2, addr_desc = self.make_user("SomeOtherUser", "z" * 5)
         self.session.add_all((u1, u2))
         self.session.commit()
 
