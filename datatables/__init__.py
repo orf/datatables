@@ -183,8 +183,10 @@ class DataTable(object):
     def get_value(self, key, instance):
         attr = key.model_name
         if "." in attr:
-            subkey, attr = attr.split(".", 1)
-            instance = getattr(instance, subkey)
+            tmp_list=attr.split(".")
+            attr=tmp_list[-1]
+            for sub in tmp_list[:-1]:
+                instance = getattr(instance, sub)
 
         if key.filter is not None:
             r = key.filter(instance)
