@@ -157,7 +157,9 @@ class DataTable(object):
             query = query.order_by(model_column.desc() if direction == "desc" else model_column.asc())
 
         filtered_records = query.count()
-        query = query.slice(start, start + length)
+
+        if length > 0:
+            query = query.slice(start, start + length)
 
         return {
             "draw": draw,
