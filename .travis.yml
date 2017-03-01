@@ -14,3 +14,7 @@ install:
 # command to run tests
 script: coverage run --source=datatables -m pytest -v
 after_success: coveralls
+
+matrix:
+  allow_failures:
+    - "nightly"
