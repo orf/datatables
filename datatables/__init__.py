@@ -135,7 +135,7 @@ class DataTable(object):
         total_records = query.count()
 
         if callable(self.search_func) and search.get("value", None):
-            query = self.search_func(query, str(search["value"]))
+            query = self.search_func(query, search["value"])
 
         for order in ordering.values():
             direction, column = order["dir"], order["column"]
@@ -157,7 +157,9 @@ class DataTable(object):
             query = query.order_by(model_column.desc() if direction == "desc" else model_column.asc())
 
         filtered_records = query.count()
-        query = query.slice(start, start + length)
+
+        if length > 0:
+            query = query.slice(start, start + length)
 
         return {
             "draw": draw,
