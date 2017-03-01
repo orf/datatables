@@ -135,7 +135,7 @@ class DataTable(object):
         total_records = query.count()
 
         if callable(self.search_func) and search.get("value", None):
-            query = self.search_func(query, str(search["value"]))
+            query = self.search_func(query, search["value"])
 
         for order in ordering.values():
             direction, column = order["dir"], order["column"]
