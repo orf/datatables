@@ -59,7 +59,7 @@ Example
         description = Column(Text, unique=True)
         user_id     = Column(Integer, ForeignKey('users.id'))
 
-**views.py**
+**views.py (pyramid)**
 
 .. code-block:: python
 
@@ -72,9 +72,33 @@ Example
             ("address", "address.description"),
         ])
         table.add_data(link=lambda o: request.route_url("view_user", id=o.id))
-        table.searchable(lambda queryset, user_input: perform_some_search(queryset, user_input))
+        table.searchable(lambda queryset, user_input: perform_search(queryset, user_input))
 
         return table.json()
+
+**views.py (flask)**
+
+.. code-block:: python
+
+    @app.route("/data")
+    def datatables():
+        table = DataTable(request.args, User, db.session.query(User), [
+            "id",
+            ("name", "full_name", lambda i: "User: {}".format(i.full_name)),
+            ("address", "address.description"),
+        ])
+        table.add_data(link=lambda obj: url_for('view_user', id=obj.id))
+        table.searchable(lambda queryset, user_input: perform_search(queryset, user_input))
+
+        return json.dumps(table.json())
+
+    def perform_search(queryset, user_input):
+        return queryset.filter(
+            db.or_(
+                User.full_name.like('%' + user_input + '%'),
+                Address.description.like('%' + user_input + '%')
+                )
+            )
 
 **template.jinja2**
 
