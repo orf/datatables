@@ -35,12 +35,15 @@ class TestDataTables:
 
         return u, addr
 
-    def make_params(self, order=None, search=None, start=0, length=10):
+    def make_params(self, order=None, search=None, column_search=None, start=0, length=10):
         x = {
             "draw": "1",
             "start": str(start),
             "length": str(length)
         }
+
+        if column_search is None:
+            column_search = {}
 
         for i, item in enumerate(("id", "name", "address")):
             b = "columns[{}]".format(i)
@@ -48,8 +51,8 @@ class TestDataTables:
             x[b + "[name]"] = ""
             x[b + "[searchable]"] = "true"
             x[b + "[orderable]"] = "true"
-            x[b + "[search][value]"] = ""
             x[b + "[search][regex]"] = "false"
+            x[b + "[search][value]"] = column_search.get(item, {}).get("value", "")
 
         for i, item in enumerate(order or []):
             for key, value in item.items():
@@ -225,5 +228,52 @@ class TestDataTables:
         })
 
         table = DataTable(req, User, self.session.query(User), [("name", "full_name")])
+        table.searchable(lambda qs, sq: qs.filter(User.full_name.startswith(sq)))
         results = table.json()
         assert len(results["data"]) == 2
+
+    def test_column_search(self):
+        user, addr = self.make_user("Silly Sally", "Silly Sally Road")
+        user2, addr2 = self.make_user("Silly Sall", "Silly Sally Roa")
+        self.session.add_all((user, user2))
+        self.session.commit()
+
+        req = self.make_params(column_search={
+            "name": {
+                "value": "Silly Sally"
+            }
+        })
+
+        table = DataTable(req, User, self.session.query(User), [("name", "full_name")])
+        table.searchable_column(lambda mc, qs, sq: qs.filter(mc.startswith(sq)))
+        results = table.json()
+        assert len(results["data"]) == 1
+
+        req = self.make_params(column_search={
+            "name": {
+                "value": "Silly Sall"
+            }
+        })
+
+        table = DataTable(req, User, self.session.query(User), [("name", "full_name")])
+        table.searchable_column(lambda mc, qs, sq: qs.filter(mc.startswith(sq)))
+        results = table.json()
+        assert len(results["data"]) == 2
+
+        req = self.make_params(column_search={
+            "name": {
+                "value": "Silly Sall"
+            },
+            "address": {
+                "value": "Silly Sally Road"
+            }
+        })
+
+        table = DataTable(
+            req,
+            User, self.session.query(User),
+            [("name", "full_name"), ("address", "address.description")]
+        )
+        table.searchable_column(lambda mc, qs, sq: qs.filter(mc.startswith(sq)))
+        results = table.json()
+        assert len(results["data"]) == 1

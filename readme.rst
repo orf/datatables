@@ -73,6 +73,10 @@ Example
         ])
         table.add_data(link=lambda o: request.route_url("view_user", id=o.id))
         table.searchable(lambda queryset, user_input: perform_search(queryset, user_input))
+        table.searchable_column(
+            lambda model_column, queryset, user_input:
+                perform_column_search(model_column, queryset, user_input)
+        )
 
         return table.json()
 
@@ -89,8 +93,16 @@ Example
         ])
         table.add_data(link=lambda obj: url_for('view_user', id=obj.id))
         table.searchable(lambda queryset, user_input: perform_search(queryset, user_input))
+        table.searchable_column(
+            lambda model_column, queryset, user_input:
+                perform_column_search(model_column, queryset, user_input)
+        )
 
         return json.dumps(table.json())
+
+**Global and individual column searching**
+
+.. code-block:: python
 
     def perform_search(queryset, user_input):
         return queryset.filter(
@@ -99,6 +111,9 @@ Example
                 Address.description.like('%' + user_input + '%')
                 )
             )
+
+    def perform_column_search(model_column, queryset, user_input):
+        return queryset.filter(model_column.like("%" + user_input + "%"))
 
 **template.jinja2**
 
