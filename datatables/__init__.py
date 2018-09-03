@@ -24,6 +24,7 @@ class DataTable(object):
         self.columns = []
         self.columns_dict = {}
         self.search_func = lambda qs, s: qs
+        self.column_search_func = lambda mc, qs, s: qs
 
         for col in columns:
             name, model_name, filter_func = None, None, None
@@ -122,6 +123,9 @@ class DataTable(object):
     def searchable(self, func):
         self.search_func = func
 
+    def searchable_column(self, func):
+        self.column_search_func = func
+
     def _json(self):
         draw = self.get_integer_param("draw")
         start = self.get_integer_param("start")
@@ -136,6 +140,22 @@ class DataTable(object):
 
         if callable(self.search_func) and search.get("value", None):
             query = self.search_func(query, search["value"])
+
+        for column_data in columns.values():
+            search_value = column_data["search"]["value"]
+            if (
+                not column_data["searchable"]
+                or not search_value
+                or not callable(self.column_search_func)
+            ):
+                continue
+
+            column_name = column_data["data"]
+            column = self.columns_dict[column_name]
+
+            model_column = self.get_column(column)
+
+            query = self.column_search_func(model_column, query, str(search_value))
 
         for order in ordering.values():
             direction, column = order["dir"], order["column"]
